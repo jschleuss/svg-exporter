@@ -43,6 +43,9 @@ function setupJson(dKinds) {
         minor_road: {
           features: []
         },
+        service: {
+          features: []
+        },
         highway: {
           features:[]
         },
@@ -287,6 +290,8 @@ function bakeJson(resultArray) {
             // segment off motorway_link
             if (feature.properties.kind_detail == "motorway_link") {
               var dataKindTitle = 'highway_link';
+            } else if (feature.properties.kind_detail == "service") {
+              var dataKindTitle = 'service';
             } else {
               var dataKindTitle = feature.properties.kind;
             }
