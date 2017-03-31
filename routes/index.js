@@ -46,6 +46,9 @@ function setupJson(dKinds) {
         highway: {
           features:[]
         },
+        highway_link: {
+          features:[]
+        },        
         aerialway: {
           features: []
         },
@@ -281,7 +284,12 @@ function bakeJson(resultArray) {
       if (dKinds.indexOf(response) > -1) {
         let responseResult = result[response];
           for (let feature of responseResult.features) {
-            var dataKindTitle = feature.properties.kind;
+            // segment off motorway_link
+            if (feature.properties.kind_detail == "motorway_link") {
+              var dataKindTitle = 'highway_link';
+            } else {
+              var dataKindTitle = feature.properties.kind;
+            }
             if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
               geojsonToReform[response][dataKindTitle].features.push(feature);
             } else {
