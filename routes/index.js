@@ -280,7 +280,7 @@ function bakeJson(resultArray) {
   for (let result of resultArray) {
     // inside of one object
     for (let response in result) {
-      // if tthe property is one of dataKinds that user selected
+      // if the property is one of dataKinds that user selected
       if (dKinds.indexOf(response) > -1) {
         let responseResult = result[response];
           for (let feature of responseResult.features) {
