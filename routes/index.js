@@ -344,6 +344,7 @@ function bakeJson(resultArray) {
             let tempSubK = oneDataKind[subKinds]
             let subG = g.append('g')
             subG.attr('id',slugify(subKinds))
+
             for(let f in tempSubK.features) {
 
               let geoFeature = tempSubK.features[f]
@@ -354,9 +355,9 @@ function bakeJson(resultArray) {
               if (tempSubK.features[f].properties.hasOwnProperty('name')) {
                 let featSlug = slugify(tempSubK.features[f].properties.name);
 
-                console.log(featSlug);
-                console.log(tempSubK.features[f].properties);
-                console.log(window.d3.select("#"+slugify(subKinds)).empty())
+                // console.log(featSlug);
+                // console.log(tempSubK.features[f].properties);
+                // console.log(window.d3.select("#"+slugify(subKinds)).empty())
 
 
 
