@@ -343,7 +343,7 @@ function bakeJson(resultArray) {
           for(let subKinds in oneDataKind) {
             let tempSubK = oneDataKind[subKinds]
             let subG = g.append('g')
-            subG.attr('id',subKinds)
+            subG.attr('id',slugify(subKinds))
             for(let f in tempSubK.features) {
 
               let geoFeature = tempSubK.features[f]
@@ -356,11 +356,12 @@ function bakeJson(resultArray) {
 
                 console.log(featSlug);
                 console.log(tempSubK.features[f].properties);
-                console.log(window.d3.select("#"+featSlug).empty())
+                console.log(window.d3.select("#"+slugify(subKinds)).empty())
+
 
 
                 // check if name group doesn't exist
-                if (window.d3.select("#"+featSlug).empty()) {
+                if (window.d3.select("#"+slugify(subKinds)+" #"+featSlug).empty()) {
 
                   let nameG = subG.append('g');
                   nameG.attr('id',featSlug);
@@ -374,7 +375,7 @@ function bakeJson(resultArray) {
 
                 } else {
                   // if group does exist
-                  let nameG = window.d3.select("#"+featSlug);
+                  let nameG = window.d3.select("#"+slugify(subKinds)+" #"+featSlug);
 
                   if(previewFeature && previewFeature.indexOf('a') > 0) ;
                   else {
