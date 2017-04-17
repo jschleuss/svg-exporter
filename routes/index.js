@@ -358,8 +358,10 @@ function bakeJson(resultArray) {
                 console.log(tempSubK.features[f].properties);
                 console.log(window.d3.select("#"+featSlug).empty())
 
+
                 // check if name group doesn't exist
                 if (window.d3.select("#"+featSlug).empty()) {
+
                   let nameG = subG.append('g');
                   nameG.attr('id',featSlug);
                   if(previewFeature && previewFeature.indexOf('a') > 0) ;
@@ -371,7 +373,9 @@ function bakeJson(resultArray) {
                   }
 
                 } else {
+                  // if group does exist
                   let nameG = window.d3.select("#"+featSlug);
+
                   if(previewFeature && previewFeature.indexOf('a') > 0) ;
                   else {
                     nameG.append('path')
