@@ -383,10 +383,13 @@ function bakeJson(resultArray) {
 
 
               } else {
-                  subG.append('path')
-                    .attr('d', previewFeature)
-                    .attr('fill','none')
-                    .attr('stroke','black')
+                  if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                  else {
+                    subG.append('path')
+                      .attr('d', previewFeature)
+                      .attr('fill','none')
+                      .attr('stroke','black')
+                  }
               }
 
 
