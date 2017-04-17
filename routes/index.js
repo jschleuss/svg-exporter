@@ -287,10 +287,12 @@ function bakeJson(resultArray) {
       if (dKinds.indexOf(response) > -1) {
         let responseResult = result[response];
           for (let feature of responseResult.features) {
+
             // segment off motorway_link
             if (feature.properties.kind_detail == "motorway_link") {
               var dataKindTitle = 'highway_link';
             } else if (feature.properties.kind_detail == "service") {
+            // segment off service roads
               var dataKindTitle = 'service';
             } else {
               var dataKindTitle = feature.properties.kind;
@@ -329,7 +331,7 @@ function bakeJson(resultArray) {
                         //this are carved based on zoom 16, fit into 100px * 100px rect
                         .scale(600000* tileWidth/57.5 * Math.pow(2,(zoom-16)))
                         .precision(.0)
-                        . translate([0, 0])
+                        .translate([0, 0])
 
         var previewPath = d3.geo.path().projection(previewProjection);
 
@@ -343,16 +345,52 @@ function bakeJson(resultArray) {
             let subG = g.append('g')
             subG.attr('id',subKinds)
             for(let f in tempSubK.features) {
+
               let geoFeature = tempSubK.features[f]
               let previewFeature = previewPath(geoFeature);
 
-              if(previewFeature && previewFeature.indexOf('a') > 0) ;
-              else {
-                subG.append('path')
-                  .attr('d', previewFeature)
-                  .attr('fill','none')
-                  .attr('stroke','black')
+
+              // group by name
+              if (tempSubK.features[f].properties.hasOwnProperty('name')) {
+                let featSlug = slugify(tempSubK.features[f].properties.name);
+
+                console.log(featSlug);
+                console.log(tempSubK.features[f].properties);
+                console.log(window.d3.select("#"+featSlug).empty())
+
+                // check if name group doesn't exist
+                if (window.d3.select("#"+featSlug).empty()) {
+                  let nameG = subG.append('g');
+                  nameG.attr('id',featSlug);
+                  if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                  else {
+                    nameG.append('path')
+                      .attr('d', previewFeature)
+                      .attr('fill','none')
+                      .attr('stroke','black')
+                  }
+
+                } else {
+                  let nameG = window.d3.select("#"+featSlug);
+                  if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                  else {
+                    nameG.append('path')
+                      .attr('d', previewFeature)
+                      .attr('fill','none')
+                      .attr('stroke','black')
+                  }
+                }
+
+
+              } else {
+                  subG.append('path')
+                    .attr('d', previewFeature)
+                    .attr('fill','none')
+                    .attr('stroke','black')
               }
+
+
+
             }
           }
         }
@@ -388,6 +426,10 @@ function tile2Lon(tileLon, zoom) {
 
 function tile2Lat(tileLat, zoom) {
   return ((360/Math.PI) * Math.atan(Math.pow( Math.E, (Math.PI - 2*Math.PI*tileLat/(Math.pow(2,zoom)))))-90).toFixed(10);
+}
+
+function slugify(str) {
+  return str.replace(/[\s]|[,\s]+/g, '-').replace(/[^a-zA-Z-]/g, '').toLowerCase();
 }
 
 module.exports = router;
