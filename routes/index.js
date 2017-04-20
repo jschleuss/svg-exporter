@@ -350,7 +350,13 @@ function bakeJson(resultArray) {
               let geoFeature = tempSubK.features[f]
               let previewFeature = previewPath(geoFeature);
 
-
+              // if(previewFeature && previewFeature.indexOf('a') > 0) ;
+              // else {
+              //   subG.append('path')
+              //     .attr('d', previewFeature)
+              //     .attr('fill','none')
+              //     .attr('stroke','black')
+              // }
               // group by name
               if (tempSubK.features[f].properties.hasOwnProperty('name')) {
                 let featSlug = slugify(tempSubK.features[f].properties.name);
