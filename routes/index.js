@@ -212,7 +212,7 @@ router.post('/request-map', function(req, res, next) {
 
   var key = req.body.apikey || config.key;
 
-  var delayTime = 1000;
+  var delayTime = 100;
 
   var outputLocation = 'svgmap'+ tilesToFetch[0][0].lon +'-'+tilesToFetch[0][0].lat +'-'+zoom +'.svg';
 
