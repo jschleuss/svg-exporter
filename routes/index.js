@@ -37,26 +37,8 @@ function setupJson(dKinds) {
     // should add more meaningful layers for each
     if(dKinds[i] === 'roads') {
       formattedJson[dKinds[i]] = {
-        major_road: {
+        etc: {
           features: []
-        },
-        minor_road: {
-          features: []
-        },
-        service: {
-          features: []
-        },
-        highway: {
-          features:[]
-        },
-        highway_link: {
-          features:[]
-        },        
-        aerialway: {
-          features: []
-        },
-        rail: {
-          features:[]
         },
         path: {
           features:[]
@@ -64,9 +46,27 @@ function setupJson(dKinds) {
         ferry: {
           features:[]
         },
-        etc: {
+        service: {
           features: []
-        }
+        },
+        minor_road: {
+          features: []
+        },
+        major_road: {
+          features: []
+        },  
+        aerialway: {
+          features: []
+        },
+        rail: {
+          features:[]
+        },
+        highway_link: {
+          features:[]
+        }, 
+        highway: {
+          features:[]
+        }       
       }
     } else if (dKinds[i] === 'boundaries') {
       formattedJson[dKinds[i]] = {
@@ -390,7 +390,8 @@ function bakeJson(resultArray) {
                   nameG.append('path')
                     .attr('d', previewFeature)
                     .attr('fill','none')
-                    .attr('stroke',getStrokeColor(tempSubK.features[f].properties.kind));
+                    .attr('stroke',getStrokeColor(tempSubK.features[f].properties.kind))
+                    .attr('stroke-width',getStrokeWidth(tempSubK.features[f].properties.kind));
                 }
 
               } else {
@@ -399,7 +400,8 @@ function bakeJson(resultArray) {
                     subG.append('path')
                       .attr('d', previewFeature)
                       .attr('fill','none')
-                      .attr('stroke',getStrokeColor(tempSubK.features[f].properties));
+                      .attr('stroke',getStrokeColor(tempSubK.features[f].properties))
+                      .attr('stroke-width',getStrokeWidth(tempSubK.features[f].properties));
                   }
               }
 
