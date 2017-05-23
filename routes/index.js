@@ -276,6 +276,15 @@ router.post('/request-map', function(req, res, next) {
     request.send();
   }
 
+// styles
+function getStrokeColor(featureType) {
+  return (featureType == 'minor_road') ? '#cccecf' : '#000';
+}
+
+function getStrokeWidth(featureType) {
+  return (featureType == 'minor_road') ? '0.65px' : '1px';
+}
+
 
 function bakeJson(resultArray) {
   var geojsonToReform = setupJson(dKinds);
@@ -365,34 +374,24 @@ function bakeJson(resultArray) {
                 // console.log(tempSubK.features[f].properties);
                 // console.log(window.d3.select("#"+slugify(subKinds)).empty())
 
-
-
                 // check if name group doesn't exist
                 if (window.d3.select("#"+slugify(subKinds)+" #"+featSlug).empty()) {
 
-                  let nameG = subG.append('g');
+                  var nameG = subG.append('g');
                   nameG.attr('id',featSlug);
-                  if(previewFeature && previewFeature.indexOf('a') > 0) ;
-                  else {
-                    nameG.append('path')
-                      .attr('d', previewFeature)
-                      .attr('fill','none')
-                      .attr('stroke','black')
-                  }
 
                 } else {
                   // if group does exist
-                  let nameG = window.d3.select("#"+slugify(subKinds)+" #"+featSlug);
+                  nameG = window.d3.select("#"+slugify(subKinds)+" #"+featSlug);
 
-                  if(previewFeature && previewFeature.indexOf('a') > 0) ;
-                  else {
-                    nameG.append('path')
-                      .attr('d', previewFeature)
-                      .attr('fill','none')
-                      .attr('stroke','black')
-                  }
                 }
-
+                if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                else {
+                  nameG.append('path')
+                    .attr('d', previewFeature)
+                    .attr('fill','none')
+                    .attr('stroke',getStrokeColor(tempSubK.features[f].properties.kind));
+                }
 
               } else {
                   if(previewFeature && previewFeature.indexOf('a') > 0) ;
@@ -400,7 +399,7 @@ function bakeJson(resultArray) {
                     subG.append('path')
                       .attr('d', previewFeature)
                       .attr('fill','none')
-                      .attr('stroke','black')
+                      .attr('stroke',getStrokeColor(tempSubK.features[f].properties));
                   }
               }
 
