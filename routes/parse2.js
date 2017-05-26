@@ -8,6 +8,9 @@ var jsdom = require('jsdom');
 var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
 
+// zoom level needs to be one higher than map.getZoom()
+
+// temp options
 var mapoptions = { 
     apikey: 'mapzen-uxhmqQc',
     startLat: '34.45674800347809',
@@ -23,8 +26,34 @@ var mapoptions = {
     // roads: 'on',
     'coord-submit': 'submit' 
 };
+var mapoptions = { 
+    apikey: 'mapzen-uxhmqQc',
+    startLat: '33.9228',
+    startLon: '-118.3383',
+    endLat: '34.1433',
+    endLon: '-118.8758',
+    zoomLevel: '10',
+    layers: {
+    'roads_visible': ['highways','highway_ramps','major','minor','service','ferry_route','taxi_and_runways'],
+    },
+    // roads: 'on',
+    'coord-submit': 'submit' 
+};
 
 parseJSON(JSON.stringify(mapoptions));
+
+// set up land use groups for LAT
+var landusePark = ['national_park', 'battlefield', 'protected_area', 'nature_reserve', 'park', 'golf_course', 'recreation_ground', 'camp_site', 'garden', 'allotments', 'pitch', 'meadow', 'village_green', 'grass', 'farmland', 'playground', 'attraction', 'artwork', 'wilderness_hut', 'hanami'],
+    landuseForest = ['forest', 'wood', 'natural_wood', 'natural_forest'],
+    landuseAirport = ['aerodrome'],
+    landuseMilitary = ['military'],
+    landuseUniversity = ['university', 'college'],
+    landuseSchool = ['school'],
+    landuseCemetery = ['cemetery', 'place_of_worship'],
+    landuseHospital = ['hospital'],
+    landuseStadium = ['stadium'],
+    landuseResort = ['theme_park', 'resort', 'aquarium', 'winery', 'maze'],
+    landuseBeach = ['beach'];
 
 function setupJson(dKinds) {
     // console.log(dKinds);
@@ -138,13 +167,52 @@ function setupJson(dKinds) {
                     features: []
                 }
             }
-        }
-        else
+        } else if (dKinds[i] === 'landuse') {
+            formattedJson[dKinds[i]] = {
+                etc: {
+                    features: []
+                },
+                university: {
+                    features: []
+                },
+                stadium: {
+                    features: []
+                },
+                school: {
+                    features: []
+                },
+                resort: {
+                    features: []
+                },
+                park: {
+                    features: []
+                },
+                military: {
+                    features: []
+                },
+                hospital: {
+                    features: []
+                },
+                forest: {
+                    features: []
+                },
+                cemetery: {
+                    features: []
+                },
+                beach: {
+                    features: []
+                },
+                airport: {
+                    features: []
+                }
+            }
+        } else {
             formattedJson[dKinds[i]] = {
                 etc: {
                     features: []
                 }
             }
+        }
     }
     // console.log(formattedJson);
     return formattedJson;
@@ -203,7 +271,10 @@ function parseJSON(req) {
     // check for available layers
     Object.keys(options.layers).forEach(function(key) {
         // if (key == 'roads_visible') dKinds.push({'roads':options.layers[key]});
-        if (key == 'roads_visible') dKinds.push('roads');
+        // if (key == 'roads_visible') dKinds.push('roads');
+        dKinds.push('landuse');
+        dKinds.push('water');
+        dKinds.push('earth');
     });
 
     var tilesToFetch = getTilesToFetch(startLat, endLat, startLon, endLon);
@@ -238,7 +309,7 @@ function parseJSON(req) {
         console.log(url);
         request.open('GET', url, true);
 
-        request.onload = function() {
+        request.onload = function(e) {
             if (request.status >= 200 && request.status < 400) {
                 // Success!
                 var data = JSON.parse(request.responseText);
@@ -264,6 +335,8 @@ function parseJSON(req) {
                 }
             } else {
                 console.log('We reached our target server, but it returned an error')
+                console.log(e);
+                makeCall(); // try again if error
             }
         };
 
@@ -274,7 +347,10 @@ function parseJSON(req) {
         request.send();
     }
 
+
     function bakeJson(resultArray) {
+        var ids = [];
+
         console.log('bakeJson()');
         var geojsonToReform = setupJson(dKinds);
         // console.log(geojsonToReform);
@@ -285,26 +361,51 @@ function parseJSON(req) {
                 // if the property is one of dataKinds that user selected
                 if (dKinds.indexOf(response) > -1) {
                     let responseResult = result[response];
-                        for (let feature of responseResult.features) {
+                    for (let feature of responseResult.features) {
+                        console.log(feature.properties);
 
-                            // segment off motorway_link
-                            if (feature.properties.kind_detail == "motorway_link") {
-                                var dataKindTitle = 'highway_link';
-                            } else if (feature.properties.kind_detail == "service") {
-                            // segment off service roads
-                                var dataKindTitle = 'service';
-                            } else {
-                                var dataKindTitle = feature.properties.kind;
-                            }
-                            if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
-                                geojsonToReform[response][dataKindTitle].features.push(feature);
-                            } else {
-                                geojsonToReform[response]['etc'].features.push(feature)
-                            }
+                        // segment off motorway_link
+                        if (feature.properties.kind_detail == "motorway_link") {
+                            var dataKindTitle = 'highway_link';
+                        } else if (feature.properties.kind_detail == "service") {
+                        // segment off service roads
+                            var dataKindTitle = 'service';
+                        } else if (landusePark.indexOf(feature.properties.kind) !== -1 ) {
+                        // land uses
+                            var dataKindTitle = 'park';
+
+                        } else if (landuseForest.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'forest';
+                        } else if (landuseAirport.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'airport';
+                        } else if (landuseMilitary.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'military';
+                        } else if (landuseUniversity.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'university';
+                        } else if (landuseSchool.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'school';
+                        } else if (landuseCemetery.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'cemetery';
+                        } else if (landuseHospital.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'hospital';
+                        } else if (landuseStadium.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'stadium';
+                        } else if (landuseResort.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'resort';
+                        } else if (landuseBeach.indexOf(feature.properties.kind) !== -1 ) {
+                            var dataKindTitle = 'beach';
+                        } else {
+                            var dataKindTitle = feature.properties.kind;
+                        }
+                        if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
+                            geojsonToReform[response][dataKindTitle].features.push(feature);
+                        } else {
+                            geojsonToReform[response]['etc'].features.push(feature)
                         }
                     }
                 }
             }
+        }
         writeSVGFile(geojsonToReform);
     }
 
@@ -345,6 +446,7 @@ function parseJSON(req) {
 
                     for(let subKinds in oneDataKind) {
                         let tempSubK = oneDataKind[subKinds]
+                        // console.log(tempSubK);
                         let subG = g.append('g')
                         subG.attr('id',subKinds)
                         for(let f in tempSubK.features) {
@@ -468,6 +570,77 @@ function parseJSON(req) {
                 window.d3.selectAll('#etc path')
                     .attr('stroke','#CDCFD0')
                     .attr('stroke-width','0.65px');
+
+                // landuse styles
+                window.d3.selectAll('#university path')
+                    .attr('fill','#F2F0E7')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#stadium path')
+                    .attr('fill','#F9F3D6')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#school path')
+                    .attr('fill','#F2F0E7')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#resort path')
+                    .attr('fill','#F9F3D6')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#park path')
+                    .attr('fill','#E7F1CA')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#military path')
+                    .attr('fill','#eff0ef')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#hospital path')
+                    .attr('fill','#E2EDEF')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#forest path')
+                    .attr('fill','#E7F1CA')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#cemetery path')
+                    .attr('fill','#E4E4D5')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#beach path')
+                    .attr('fill','#F8F4E1')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#airport path')
+                    .attr('fill','#eff0ef')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#etc path')
+                    .attr('fill','none')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+
+                // water
+                window.d3.selectAll('#water path')
+                    .attr('fill','#A9D7F4')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+                window.d3.selectAll('#riverbank path')
+                    .attr('fill','none')
+                    .attr('stroke','#A9D7F4')
+                    .attr('stroke-width','0.5px');
+                window.d3.selectAll('#river path')
+                    .attr('fill','none')
+                    .attr('stroke','#A9D7F4')
+                    .attr('stroke-width','0.5px');
+
+                // earth
+                window.d3.selectAll('#earth path')
+                    .attr('fill','#fff')
+                    .attr('stroke','#fff')
+                    .attr('stroke-width','0px');
+
 
                 // /tmp
                 fs.writeFile(outputLocation, window.d3.select('.container').html(),(err)=> {
