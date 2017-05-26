@@ -1,7 +1,9 @@
-var fs = require('fs');
-var jsdom = require('jsdom');
+require("babel-polyfill");
+
 var express = require('express');
 var router = express.Router();
+var fs = require('fs');
+var jsdom = require('jsdom');
 
 var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
@@ -10,8 +12,10 @@ var mapoptions = {
     apikey: 'mapzen-uxhmqQc',
     startLat: '34.45674800347809',
     startLon: '-117.34771728515626',
-    endLat: '33.62605502663528',
-    endLon: '-119.13299560546876',
+    endLat: '34.15674800347809',
+    // endLat: '33.62605502663528',
+    endLon: '-118.13299560546876',
+    // endLon: '-119.13299560546876',
     zoomLevel: '10',
     layers: {
     'roads_visible': ['highways','highway_ramps','major','minor','service','ferry_route','taxi_and_runways'],
@@ -23,7 +27,7 @@ var mapoptions = {
 parseJSON(JSON.stringify(mapoptions));
 
 function setupJson(dKinds) {
-    console.log(dKinds);
+    // console.log(dKinds);
 
 
     var formattedJson = {};
@@ -142,6 +146,7 @@ function setupJson(dKinds) {
                 }
             }
     }
+    // console.log(formattedJson);
     return formattedJson;
 } // setupJson()
 
@@ -205,7 +210,7 @@ function parseJSON(req) {
 
     var key = options.apikey || config.key;
 
-    var delayTime = 100;
+    var delayTime = 200;
 
     var outputLocation = 'svgmap'+ tilesToFetch[0][0].lon +'-'+tilesToFetch[0][0].lat +'-'+zoom +'.svg';
 
@@ -270,7 +275,9 @@ function parseJSON(req) {
     }
 
     function bakeJson(resultArray) {
+        console.log('bakeJson()');
         var geojsonToReform = setupJson(dKinds);
+        // console.log(geojsonToReform);
         // response geojson array
         for (let result of resultArray) {
             // inside of one object
@@ -302,11 +309,13 @@ function parseJSON(req) {
     }
 
     function writeSVGFile(reformedJson) {
+        console.log('writeSVGFile()');
         //d3 needs query selector from dom
         jsdom.env({
             html: '',
             features: { QuerySelector: true }, //you need query selector for D3 to work
             done: function(errors, window) {
+
                 window.d3 = d3.select(window.document);
 
                 var svg = window.d3.select('body')
@@ -326,6 +335,8 @@ function parseJSON(req) {
                                                 .translate([0, 0])
 
                 var previewPath = d3.geo.path().projection(previewProjection);
+                console.log('hello');
+
 
                 for (let dataK in reformedJson) {
                     let oneDataKind = reformedJson[dataK];
@@ -335,64 +346,87 @@ function parseJSON(req) {
                     for(let subKinds in oneDataKind) {
                         let tempSubK = oneDataKind[subKinds]
                         let subG = g.append('g')
-                        subG.attr('id',slugify(subKinds))
-
+                        subG.attr('id',subKinds)
                         for(let f in tempSubK.features) {
-
                             let geoFeature = tempSubK.features[f]
                             let previewFeature = previewPath(geoFeature);
 
-                            // if(previewFeature && previewFeature.indexOf('a') > 0) ;
-                            // else {
-                            //   subG.append('path')
-                            //     .attr('d', previewFeature)
-                            //     .attr('fill','none')
-                            //     .attr('stroke','black')
-                            // }
-                            // group by name
-                            if (tempSubK.features[f].properties.hasOwnProperty('name')) {
-                                let featSlug = slugify(tempSubK.features[f].properties.name);
-
-                                // console.log(featSlug);
-                                // console.log(tempSubK.features[f].properties);
-                                // console.log(window.d3.select("#"+slugify(subKinds)).empty())
-
-                                // check if name group doesn't exist
-                                if (window.d3.select("#"+slugify(subKinds)+" #"+featSlug).empty()) {
-
-                                    var nameG = subG.append('g');
-                                    nameG.attr('id',featSlug);
-
-                                } else {
-                                    // if group does exist
-                                    nameG = window.d3.select("#"+slugify(subKinds)+" #"+featSlug);
-
-                                }
-                                if(previewFeature && previewFeature.indexOf('a') > 0) ;
-                                else {
-                                    nameG.append('path')
-                                        .attr('d', previewFeature)
-                                        .attr('fill','none')
-                                        .attr('stroke','black')
-                                        .attr('stroke-width','1px');
-                                }
-
-                            } else {
-                                    if(previewFeature && previewFeature.indexOf('a') > 0) ;
-                                    else {
-                                        subG.append('path')
-                                            .attr('d', previewFeature)
-                                            .attr('fill','none')
-                                            .attr('stroke','black')
-                                            .attr('stroke-width','1px');
-                                    }
+                            if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                            else {
+                                subG.append('path')
+                                .attr('d', previewFeature)
+                                .attr('fill','none')
+                                .attr('stroke','black')
                             }
-
-
-
                         }
                     }
                 }
+                // for (let dataK in reformedJson) {
+                //     let oneDataKind = reformedJson[dataK];
+                //     let g = svg.append('g')
+                //     g.attr('id',dataK)
+
+                //     for(let subKinds in oneDataKind) {
+                //         let tempSubK = oneDataKind[subKinds]
+                //         let subG = g.append('g')
+                //         subG.attr('id',slugify(subKinds))
+
+                //         for(let f in tempSubK.features) {
+
+                //             let geoFeature = tempSubK.features[f]
+                //             let previewFeature = previewPath(geoFeature);
+
+                //             // if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                //             // else {
+                //             //   subG.append('path')
+                //             //     .attr('d', previewFeature)
+                //             //     .attr('fill','none')
+                //             //     .attr('stroke','black')
+                //             // }
+                //             // group by name
+                //             if (tempSubK.features[f].properties.hasOwnProperty('name')) {
+                //                 let featSlug = slugify(tempSubK.features[f].properties.name);
+
+                //                 // console.log(featSlug);
+                //                 // console.log(tempSubK.features[f].properties);
+                //                 // console.log(window.d3.select("#"+slugify(subKinds)).empty())
+
+                //                 // check if name group doesn't exist
+                //                 if (window.d3.select("#"+slugify(subKinds)+" #"+featSlug).empty()) {
+
+                //                     var nameG = subG.append('g');
+                //                     nameG.attr('id',featSlug);
+
+                //                 } else {
+                //                     // if group does exist
+                //                     nameG = window.d3.select("#"+slugify(subKinds)+" #"+featSlug);
+
+                //                 }
+                //                 if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                //                 else {
+                //                     nameG.append('path')
+                //                         .attr('d', previewFeature)
+                //                         .attr('fill','none')
+                //                         .attr('stroke','black')
+                //                         .attr('stroke-width','1px');
+                //                 }
+
+                //             } else {
+                //                     if(previewFeature && previewFeature.indexOf('a') > 0) ;
+                //                     else {
+                //                         subG.append('path')
+                //                             .attr('d', previewFeature)
+                //                             .attr('fill','none')
+                //                             .attr('stroke','black')
+                //                             .attr('stroke-width','1px');
+                //                     }
+                //             }
+
+
+
+                //         }
+                //     }
+                // }
 
                 // restyle anything in groups
                 window.d3.selectAll('#highway path')

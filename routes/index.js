@@ -279,56 +279,56 @@ router.post('/request-map', function(req, res, next) {
         request.send();
     }
 
-// styles
-function getStrokeColor(featureType) {
-    return (featureType == 'highway') ? '#a6a6a6' :
-                 (featureType == 'highway_link') ? '#a6a6a6' :
-                 (featureType == 'major_road') ? '#a6a6a6' :
-                 (featureType == 'minor_road') ? '#cccecf' : '#cccecf';
-}
-
-var featurelist = [];
-function getStrokeWidth(featureType) {
-    if (featurelist.indexOf(featureType) == -1 ) {
-        featurelist.push(featureType);
-        // console.log(featurelist);
+    // styles
+    function getStrokeColor(featureType) {
+        return (featureType == 'highway') ? '#a6a6a6' :
+                     (featureType == 'highway_link') ? '#a6a6a6' :
+                     (featureType == 'major_road') ? '#a6a6a6' :
+                     (featureType == 'minor_road') ? '#cccecf' : '#cccecf';
     }
-    return (featureType == 'highway') ? '4px' :
-                 (featureType == 'highway_link') ? '1px' :
-                 (featureType == 'major_road') ? '1px' :
-                 (featureType == 'minor_road') ? '0.65px' : '0.25px';
-}
+
+    var featurelist = [];
+    function getStrokeWidth(featureType) {
+        if (featurelist.indexOf(featureType) == -1 ) {
+            featurelist.push(featureType);
+            // console.log(featurelist);
+        }
+        return (featureType == 'highway') ? '4px' :
+                     (featureType == 'highway_link') ? '1px' :
+                     (featureType == 'major_road') ? '1px' :
+                     (featureType == 'minor_road') ? '0.65px' : '0.25px';
+    }
 
 
-function bakeJson(resultArray) {
-    var geojsonToReform = setupJson(dKinds);
-    // response geojson array
-    for (let result of resultArray) {
-        // inside of one object
-        for (let response in result) {
-            // if the property is one of dataKinds that user selected
-            if (dKinds.indexOf(response) > -1) {
-                let responseResult = result[response];
-                    for (let feature of responseResult.features) {
+    function bakeJson(resultArray) {
+        var geojsonToReform = setupJson(dKinds);
+        // response geojson array
+        for (let result of resultArray) {
+            // inside of one object
+            for (let response in result) {
+                // if the property is one of dataKinds that user selected
+                if (dKinds.indexOf(response) > -1) {
+                    let responseResult = result[response];
+                        for (let feature of responseResult.features) {
 
-                        // segment off motorway_link
-                        if (feature.properties.kind_detail == "motorway_link") {
-                            var dataKindTitle = 'highway_link';
-                        } else if (feature.properties.kind_detail == "service") {
-                        // segment off service roads
-                            var dataKindTitle = 'service';
-                        } else {
-                            var dataKindTitle = feature.properties.kind;
-                        }
-                        if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
-                            geojsonToReform[response][dataKindTitle].features.push(feature);
-                        } else {
-                            geojsonToReform[response]['etc'].features.push(feature)
+                            // segment off motorway_link
+                            if (feature.properties.kind_detail == "motorway_link") {
+                                var dataKindTitle = 'highway_link';
+                            } else if (feature.properties.kind_detail == "service") {
+                            // segment off service roads
+                                var dataKindTitle = 'service';
+                            } else {
+                                var dataKindTitle = feature.properties.kind;
+                            }
+                            if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
+                                geojsonToReform[response][dataKindTitle].features.push(feature);
+                            } else {
+                                geojsonToReform[response]['etc'].features.push(feature)
+                            }
                         }
                     }
                 }
             }
-        }
         writeSVGFile(geojsonToReform);
     }
 
