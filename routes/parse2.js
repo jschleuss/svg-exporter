@@ -1,34 +1,31 @@
-"use strict";
-
-require("babel-polyfill");
-
-var express = require('express');
-var router = express.Router();
 var fs = require('fs');
 var jsdom = require('jsdom');
+var express = require('express');
+var router = express.Router();
 
 var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
 
-// use key saved in config file if there is a config file in same directory
-if (fs.existsSync( __dirname + '/config.js')) {
-    var config = require('./config.js')
-}
+var mapoptions = { 
+    apikey: 'mapzen-uxhmqQc',
+    startLat: '34.45674800347809',
+    startLon: '-117.34771728515626',
+    endLat: '33.62605502663528',
+    endLon: '-119.13299560546876',
+    zoomLevel: '10',
+    layers: {
+    'roads_visible': ['highways','highway_ramps','major','minor','service','ferry_route','taxi_and_runways'],
+    },
+    // roads: 'on',
+    'coord-submit': 'submit' 
+};
 
-var Promise = require('promise/lib/es6-extensions');
-
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.render('index', { title: "Let's make map" });
-});
-
-
-router.get('/request-map', function(req, res, next) {
-    res.redirect('/', { title: "Let's make map" });
-});
+parseJSON(JSON.stringify(mapoptions));
 
 function setupJson(dKinds) {
+    console.log(dKinds);
+
+
     var formattedJson = {};
     var dataKind = dKinds.join(',');
 
@@ -146,8 +143,7 @@ function setupJson(dKinds) {
             }
     }
     return formattedJson;
-}
-
+} // setupJson()
 
 function getTilesToFetch(startLat, endLat, startLon, endLon) {
     const tilesToFetch = [];
@@ -166,21 +162,17 @@ function getTilesToFetch(startLat, endLat, startLon, endLon) {
 }
 
 
+// function to fire up tile maker based on json options
+function parseJSON(req) {
+    var options = JSON.parse(req);
 
+    var zoom = parseInt(options.zoomLevel);
 
-router.post('/request-map', function(req, res, next) {
-    var startLat, endLat, startLon, endLon;
+    var lat1 = lat2tile(parseFloat(options.startLat), zoom)
+    var lat2 = lat2tile(parseFloat(options.endLat), zoom)
 
-    // -74.0059700, 40.7142700
-    // 74.0059700 W, 40.7142700 N
-    console.log(req.body);
-    var zoom = parseInt(req.body.zoomLevel);
-
-    var lat1 = lat2tile(parseFloat(req.body.startLat), zoom)
-    var lat2 = lat2tile(parseFloat(req.body.endLat), zoom)
-
-    var lon1 = long2tile(parseFloat(req.body.startLon), zoom)
-    var lon2 = long2tile(parseFloat(req.body.endLon), zoom)
+    var lon1 = long2tile(parseFloat(options.startLon), zoom)
+    var lon2 = long2tile(parseFloat(options.endLon), zoom)
 
     if(lat1 > lat2) {
         startLat = lat2;
@@ -200,20 +192,18 @@ router.post('/request-map', function(req, res, next) {
 
     var tileWidth = 100;
 
-    // "boundaries, buildings, earth, landuse, places, pois, roads, transit, water"
-    // need uis for datakind, zoom
-
+    // set up list of layers
     var dKinds = [];
-    if(req.body.boundaries) dKinds.push('boundaries');
-    if(req.body.earth) dKinds.push('earth');
-    if(req.body.landuse) dKinds.push('landuse');
-    if(req.body.places) dKinds.push('places');
-    if(req.body.roads) dKinds.push('roads');
-    if(req.body.water) dKinds.push('water');
+
+    // check for available layers
+    Object.keys(options.layers).forEach(function(key) {
+        // if (key == 'roads_visible') dKinds.push({'roads':options.layers[key]});
+        if (key == 'roads_visible') dKinds.push('roads');
+    });
 
     var tilesToFetch = getTilesToFetch(startLat, endLat, startLon, endLon);
 
-    var key = req.body.apikey || config.key;
+    var key = options.apikey || config.key;
 
     var delayTime = 100;
 
@@ -225,7 +215,6 @@ router.post('/request-map', function(req, res, next) {
     var yCount = tilesToFetch[0].length-1;//lonArr.length - 1;
     var originalYCount = yCount;
 
-
     function getURL(x, y) {
         var xc = x;
         var yc = y;
@@ -234,6 +223,7 @@ router.post('/request-map', function(req, res, next) {
 
         return "https://tile.mapzen.com/mapzen/vector/v1/all/"+zoom+"/"+tilesToFetch[xc][yc].lon + "/" + tilesToFetch[xc][yc].lat + ".json?api_key="+key;
     }
+
 
     var jsonArray = [];
 
@@ -279,56 +269,35 @@ router.post('/request-map', function(req, res, next) {
         request.send();
     }
 
-// styles
-function getStrokeColor(featureType) {
-    return (featureType == 'highway') ? '#a6a6a6' :
-                 (featureType == 'highway_link') ? '#a6a6a6' :
-                 (featureType == 'major_road') ? '#a6a6a6' :
-                 (featureType == 'minor_road') ? '#cccecf' : '#cccecf';
-}
+    function bakeJson(resultArray) {
+        var geojsonToReform = setupJson(dKinds);
+        // response geojson array
+        for (let result of resultArray) {
+            // inside of one object
+            for (let response in result) {
+                // if the property is one of dataKinds that user selected
+                if (dKinds.indexOf(response) > -1) {
+                    let responseResult = result[response];
+                        for (let feature of responseResult.features) {
 
-var featurelist = [];
-function getStrokeWidth(featureType) {
-    if (featurelist.indexOf(featureType) == -1 ) {
-        featurelist.push(featureType);
-        // console.log(featurelist);
-    }
-    return (featureType == 'highway') ? '4px' :
-                 (featureType == 'highway_link') ? '1px' :
-                 (featureType == 'major_road') ? '1px' :
-                 (featureType == 'minor_road') ? '0.65px' : '0.25px';
-}
-
-
-function bakeJson(resultArray) {
-    var geojsonToReform = setupJson(dKinds);
-    // response geojson array
-    for (let result of resultArray) {
-        // inside of one object
-        for (let response in result) {
-            // if the property is one of dataKinds that user selected
-            if (dKinds.indexOf(response) > -1) {
-                let responseResult = result[response];
-                    for (let feature of responseResult.features) {
-
-                        // segment off motorway_link
-                        if (feature.properties.kind_detail == "motorway_link") {
-                            var dataKindTitle = 'highway_link';
-                        } else if (feature.properties.kind_detail == "service") {
-                        // segment off service roads
-                            var dataKindTitle = 'service';
-                        } else {
-                            var dataKindTitle = feature.properties.kind;
-                        }
-                        if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
-                            geojsonToReform[response][dataKindTitle].features.push(feature);
-                        } else {
-                            geojsonToReform[response]['etc'].features.push(feature)
+                            // segment off motorway_link
+                            if (feature.properties.kind_detail == "motorway_link") {
+                                var dataKindTitle = 'highway_link';
+                            } else if (feature.properties.kind_detail == "service") {
+                            // segment off service roads
+                                var dataKindTitle = 'service';
+                            } else {
+                                var dataKindTitle = feature.properties.kind;
+                            }
+                            if(geojsonToReform[response].hasOwnProperty(dataKindTitle)) {
+                                geojsonToReform[response][dataKindTitle].features.push(feature);
+                            } else {
+                                geojsonToReform[response]['etc'].features.push(feature)
+                            }
                         }
                     }
                 }
             }
-        }
         writeSVGFile(geojsonToReform);
     }
 
@@ -477,10 +446,9 @@ function bakeJson(resultArray) {
         })
     }
 
-    // render response page first
-    res.send(startLon + ' ' + startLat + 'request submitted, waiting for a file to be written');
     makeCall();
-});
+
+} // parseJSON
 
 
 // here all maps spells are!
