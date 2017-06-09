@@ -9,43 +9,7 @@ var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
 
 // zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"apikey":"mapzen-uxhmqQc",
-"startLat":34.45674800347809,
-"startLon":-117.34771728515626,
-"endLat":33.62605502663528,
-"endLon":-119.13299560546876,
-"zoomLevel":11,
-"layers_visible":[
-    "roads_visible",
-    "roads_visible_highways",
-    "roads_visible_highway_ramps",
-    "roads_visible_major",
-    "roads_visible_ferry_route",
-    "roads_visible_taxi_and_runways",
-    "borders_visible",
-    "borders_visible_countries",
-    "borders_visible_disputed",
-    "borders_visible_states",
-    "borders_visible_counties",
-    "landuse_visible",
-    "landuse_visible_airports",
-    "landuse_visible_beach",
-    "landuse_visible_cemetery",
-    "landuse_visible_college",
-    "landuse_visible_forest",
-    "landuse_visible_hospital",
-    "landuse_visible_military",
-    "landuse_visible_park",
-    "landuse_visible_prison",
-    "landuse_visible_resort",
-    "landuse_visible_school",
-    "landuse_visible_stadium",
-    "landuse_visible_wetland",
-    "water_visible_ocean",
-    "water_visible_inland_water"],
-"custom_labels":[],
-"backgroundImg":"",
-"coord-submit":"submit"};
+var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":33.96038644388752,"startLon":-118.36835308372055,"endLat":33.920187684826274,"endLon":-118.45464179676532,"zoomLevel":14,"layers_visible":["roads_visible","roads_visible_major","roads_visible_taxi_and_runways","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
 
 
 // exports.handler = function(event, context, callback) {
@@ -72,188 +36,297 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc",
         var formattedJson = {};
         var dataKind = dKinds.join(',');
 
-        // // handle top-level layers first
-        // if (mapOptions.layers_visible.indexOf('ocean') != -1) {
-        //     formattedJson['ocean'] = {
-        //         ocean: {
-        //             features: []
-        //         }
-        //     }
-        // } else if (mapOptions.layers_visible.indexOf('earth') != -1) {
-        //     formattedJson['earth'] = {
-        //         earth: {
-        //             features: []
-        //         }
-        //     }
-        // } else if (mapOptions.layers_visible.indexOf('landuse') != -1) {
-        //     formattedJson['landuse'] = {}
-        // }
-
-
-        for (var i = 0; i < dKinds.length; i++) {
-            // this is sublayer for each data layer
-            // should add more meaningful layers for each
-            if (dKinds[i] === 'ocean') {
-                formattedJson['ocean'] = {
-                    ocean: {
-                        features: []
-                    }
-                }
-            } else if (dKinds[i] === 'earth') {
-                formattedJson[dKinds[i]] = {
-                    etc: {
-                        features: []
-                    }
-                }
-            } else if (dKinds[i] === 'landuse') {
-                formattedJson[dKinds[i]] = {
-                    etc: {
-                        features: []
-                    },
-                    university: {
-                        features: []
-                    },
-                    stadium: {
-                        features: []
-                    },
-                    school: {
-                        features: []
-                    },
-                    resort: {
-                        features: []
-                    },
-                    park: {
-                        features: []
-                    },
-                    military: {
-                        features: []
-                    },
-                    hospital: {
-                        features: []
-                    },
-                    forest: {
-                        features: []
-                    },
-                    cemetery: {
-                        features: []
-                    },
-                    beach: {
-                        features: []
-                    },
-                    airport: {
-                        features: []
-                    }
-                }
-            } else if (dKinds[i] === 'boundaries') {
-                formattedJson[dKinds[i]] = {
-                    country: {
-                        features: []
-                    },
-                    county: {
-                        features: []
-                    },
-                    disputed: {
-                        features: []
-                    },
-                    indefinite: {
-                        features: []
-                    },
-                    interminate: {
-                        features: []
-                    },
-                    lease_limit: {
-                        features: []
-                    },
-                    line_of_control: {
-                        features: []
-                    },
-                    locality: {
-                        features: []
-                    },
-                    microregion: {
-                        features: []
-                    },
-                    map_unit: {
-                        features: []
-                    },
-                    region: {
-                        features: []
-                    },
-                    etc: {
-                        features: []
-                    }
-                }
-            } else if (dKinds[i] === 'water') {
-                formattedJson[dKinds[i]] = {
-                    basin: {
-                        features: []
-                    },
-                    bay: {
-                        features: []
-                    },
-                    dock: {
-                        features: []
-                    },
-                    lake: {
-                        features: []
-                    },
-                    river: {
-                        features: []
-                    },
-                    riverbank: {
-                        features: []
-                    },
-                    stream: {
-                        features: []
-                    },
-                    swimming_pool: {
-                        features: []
-                    },
-                    etc: {
-                        features: []
-                    }
-                }
-            } else if(dKinds[i] === 'roads') {
-                formattedJson[dKinds[i]] = {
-                    etc: {
-                        features: []
-                    },
-                    path: {
-                        features:[]
-                    },
-                    ferry: {
-                        features:[]
-                    },
-                    service: {
-                        features: []
-                    },
-                    minor_road: {
-                        features: []
-                    },
-                    major_road: {
-                        features: []
-                    },  
-                    aerialway: {
-                        features: []
-                    },
-                    rail: {
-                        features:[]
-                    },
-                    highway_link: {
-                        features:[]
-                    }, 
-                    highway: {
-                        features:[]
-                    }       
-                }
-            } else {
-                formattedJson[dKinds[i]] = {
-                    etc: {
-                        features: []
-                    }
+        // ocean
+        if (mapOptions.layers_visible.indexOf('water_visible_ocean') != -1) {
+            formattedJson['ocean'] = {
+                ocean: {
+                    features: []
                 }
             }
         }
+
+        // earth
+        formattedJson['earth'] = {
+            earth: {
+                features: []
+            }
+        }
+
+        // landuse
+        if (mapOptions.layers_visible.indexOf('landuse_visible') != -1) {
+            formattedJson['landuse'] = {}
+
+            if (mapOptions.layers_visible.indexOf('landuse_visible_airports') != -1) {
+                formattedJson['landuse']['airport'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_beach') != -1) {
+                formattedJson['landuse']['beach'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_cemetery') != -1) {
+                formattedJson['landuse']['cemetery'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_college') != -1) {
+                formattedJson['landuse']['university'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_forest') != -1) {
+                formattedJson['landuse']['forest'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_hospital') != -1) {
+                formattedJson['landuse']['hospital'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_military') != -1) {
+                formattedJson['landuse']['military'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_park') != -1) {
+                formattedJson['landuse']['park'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_resort') != -1) {
+                formattedJson['landuse']['resort'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_school') != -1) {
+                formattedJson['landuse']['school'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_stadium') != -1) {
+                formattedJson['landuse']['stadium'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_prison') != -1) {
+                formattedJson['landuse']['prison'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('landuse_visible_wetland') != -1) {
+                formattedJson['landuse']['wetland'] = { features: [] }
+            }
+        } // landuse
+
+        // borders
+        if (mapOptions.layers_visible.indexOf('borders_visible') != -1) {
+            formattedJson['boundaries'] = {}
+
+            if (mapOptions.layers_visible.indexOf('borders_visible_countries') != -1) {
+                formattedJson['boundaries']['country'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('borders_visible_disputed') != -1) {
+                formattedJson['boundaries']['disputed'] = { features: [] }
+                formattedJson['boundaries']['indefinite'] = { features: [] }
+                formattedJson['boundaries']['interminate'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('borders_visible_states') != -1) {
+                formattedJson['boundaries']['region'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('borders_visible_counties') != -1) {
+                formattedJson['boundaries']['county'] = { features: [] }
+            }
+        }
+
+        // water
+        if (mapOptions.layers_visible.indexOf('water_visible') != -1) {
+            formattedJson['water'] = {}
+
+            if (mapOptions.layers_visible.indexOf('water_visible_inland_water') != -1) {
+                formattedJson['water']['bay'] = { features: [] }
+                formattedJson['water']['lake'] = { features: [] }
+                formattedJson['water']['river'] = { features: [] }
+                formattedJson['water']['riverbank'] = { features: [] }
+                formattedJson['water']['stream'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('water_visible_swimming_pools') != -1) {
+                formattedJson['water']['swimming_pool'] = { features: [] }
+            }
+        }
+
+        // roads
+        if (mapOptions.layers_visible.indexOf('roads_visible') != -1) {
+            formattedJson['roads'] = {}
+
+            if (mapOptions.layers_visible.indexOf('roads_visible_ferry_route') != -1) {
+                formattedJson['roads']['ferry'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('roads_visible_taxi_and_runways') != -1) {
+                formattedJson['roads']['taxiway'] = { features: [] }
+                formattedJson['roads']['runway'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('roads_visible_service') != -1) {
+                formattedJson['roads']['service'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('roads_visible_minor') != -1) {
+                formattedJson['roads']['minor_road'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('roads_visible_major') != -1) {
+                formattedJson['roads']['major_road'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('roads_visible_highway_ramps') != -1) {
+                formattedJson['roads']['highway_link'] = { features: [] }
+            }
+            if (mapOptions.layers_visible.indexOf('roads_visible_highways') != -1) {
+                formattedJson['roads']['highway'] = { features: [] }
+            }
+
+        } // roads
+
+
+        // for (var i = 0; i < dKinds.length; i++) {
+        //     // this is sublayer for each data layer
+        //     // should add more meaningful layers for each
+        //     if (dKinds[i] === 'ocean') {
+        //         formattedJson['ocean'] = {
+        //             ocean: {
+        //                 features: []
+        //             }
+        //         }
+        //     } else if (dKinds[i] === 'earth') {
+        //         formattedJson[dKinds[i]] = {
+        //             etc: {
+        //                 features: []
+        //             }
+        //         }
+        //     } else if (dKinds[i] === 'landuse') {
+        //         formattedJson[dKinds[i]] = {
+        //             etc: {
+        //                 features: []
+        //             },
+        //             university: {
+        //                 features: []
+        //             },
+        //             stadium: {
+        //                 features: []
+        //             },
+        //             school: {
+        //                 features: []
+        //             },
+        //             resort: {
+        //                 features: []
+        //             },
+        //             park: {
+        //                 features: []
+        //             },
+        //             military: {
+        //                 features: []
+        //             },
+        //             hospital: {
+        //                 features: []
+        //             },
+        //             forest: {
+        //                 features: []
+        //             },
+        //             cemetery: {
+        //                 features: []
+        //             },
+        //             beach: {
+        //                 features: []
+        //             },
+        //             airport: {
+        //                 features: []
+        //             }
+        //         }
+        //     } else if (dKinds[i] === 'boundaries') {
+        //         formattedJson[dKinds[i]] = {
+        //             country: {
+        //                 features: []
+        //             },
+        //             county: {
+        //                 features: []
+        //             },
+        //             disputed: {
+        //                 features: []
+        //             },
+        //             indefinite: {
+        //                 features: []
+        //             },
+        //             interminate: {
+        //                 features: []
+        //             },
+        //             lease_limit: {
+        //                 features: []
+        //             },
+        //             line_of_control: {
+        //                 features: []
+        //             },
+        //             locality: {
+        //                 features: []
+        //             },
+        //             microregion: {
+        //                 features: []
+        //             },
+        //             map_unit: {
+        //                 features: []
+        //             },
+        //             region: {
+        //                 features: []
+        //             },
+        //             etc: {
+        //                 features: []
+        //             }
+        //         }
+        //     } else if (dKinds[i] === 'water') {
+        //         formattedJson[dKinds[i]] = {
+        //             basin: {
+        //                 features: []
+        //             },
+        //             bay: {
+        //                 features: []
+        //             },
+        //             dock: {
+        //                 features: []
+        //             },
+        //             lake: {
+        //                 features: []
+        //             },
+        //             river: {
+        //                 features: []
+        //             },
+        //             riverbank: {
+        //                 features: []
+        //             },
+        //             stream: {
+        //                 features: []
+        //             },
+        //             swimming_pool: {
+        //                 features: []
+        //             },
+        //             etc: {
+        //                 features: []
+        //             }
+        //         }
+        //     } else if(dKinds[i] === 'roads') {
+        //         formattedJson[dKinds[i]] = {
+        //             etc: {
+        //                 features: []
+        //             },
+        //             path: {
+        //                 features:[]
+        //             },
+        //             ferry: {
+        //                 features:[]
+        //             },
+        //             service: {
+        //                 features: []
+        //             },
+        //             minor_road: {
+        //                 features: []
+        //             },
+        //             major_road: {
+        //                 features: []
+        //             },  
+        //             aerialway: {
+        //                 features: []
+        //             },
+        //             rail: {
+        //                 features:[]
+        //             },
+        //             highway_link: {
+        //                 features:[]
+        //             }, 
+        //             highway: {
+        //                 features:[]
+        //             }       
+        //         }
+        //     } else {
+        //         formattedJson[dKinds[i]] = {
+        //             etc: {
+        //                 features: []
+        //             }
+        //         }
+        //     }
+        // }
         // console.log(formattedJson);
         return formattedJson;
     } // setupJson()
@@ -362,7 +435,7 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc",
         //     }
         // }
 
-        console.log(formattedJson);
+        // console.log(formattedJson);
 
         dKinds.push('ocean');
         dKinds.push('earth');
@@ -451,6 +524,7 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc",
             for (let result of resultArray) {
                 // inside of one object
                 for (let response in result) {
+                    // console.log(response)
                     // if the property is one of dataKinds that user selected
                     if (dKinds.indexOf(response) > -1) {
                         let responseResult = result[response];
@@ -470,10 +544,14 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc",
                             } else if (feature.properties.kind_detail == "service") {
                             // segment off service roads
                                 var dataKindTitle = 'service';
+                            } else if (feature.properties.kind_detail == "runway") {
+                            // aeroway roads
+                                var dataKindTitle = 'runway';
+                            } else if (feature.properties.kind_detail == "taxiway") {
+                                var dataKindTitle = 'taxiway';
                             } else if (landusePark.indexOf(feature.properties.kind) !== -1 ) {
                             // land uses
                                 var dataKindTitle = 'park';
-
                             } else if (landuseForest.indexOf(feature.properties.kind) !== -1 ) {
                                 var dataKindTitle = 'forest';
                             } else if (landuseAirport.indexOf(feature.properties.kind) !== -1 ) {
@@ -502,9 +580,10 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc",
                                 geojsonToReform[response][dataKindTitle].features.push(feature);
                             } else if (feature.properties.kind == 'ocean') {
                                 geojsonToReform['ocean']['ocean'].features.push(feature);
-                            } else {
-                                geojsonToReform[response]['etc'].features.push(feature)
-                            }
+                            } 
+                            // else {
+                            //     geojsonToReform[response]['etc'].features.push(feature)
+                            // }
                         }
                     }
                 }
@@ -669,6 +748,14 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc",
                         .attr('stroke-dasharray','1,1');
 
                     window.d3.selectAll('#etc path')
+                        .attr('stroke','#CDCFD0')
+                        .attr('stroke-width','0.65px');
+
+                    window.d3.selectAll('#runway path')
+                        .attr('stroke','#CDCFD0')
+                        .attr('stroke-width','5px');
+
+                    window.d3.selectAll('#taxiway path')
                         .attr('stroke','#CDCFD0')
                         .attr('stroke-width','0.65px');
 
