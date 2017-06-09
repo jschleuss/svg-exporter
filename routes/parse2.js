@@ -9,7 +9,7 @@ var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
 
 // zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.06207669953149,"startLon":-118.23907636396899,"endLat":34.049756542537104,"endLon":-118.26555823751733,"zoomLevel":16,"layers_visible":["roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_service","roads_visible_ferry_route","roads_visible_taxi_and_runways","roads_visible_paths","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
+var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":33.99910445430355,"startLon":-118.38127295976474,"endLat":33.94405275832443,"endLon":-118.49948774061043,"zoomLevel":14,"layers_visible":["roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
 
 
 // exports.handler = function(event, context, callback) {
@@ -131,6 +131,9 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.06207669953149,"startL
             if (mapOptions.layers_visible.indexOf('water_visible_swimming_pools') != -1) {
                 formattedJson['water']['swimming_pool'] = { features: [] }
             }
+
+            // need etc to grab other water
+            formattedJson['water']['etc'] = { features: [] }
         }
 
         // roads
@@ -755,7 +758,7 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.06207669953149,"startL
 
                     window.d3.selectAll('#runway path')
                         .attr('stroke','#CDCFD0')
-                        .attr('stroke-width','5px');
+                        .attr('stroke-width','2px');
 
                     window.d3.selectAll('#taxiway path')
                         .attr('stroke','#CDCFD0')
@@ -782,10 +785,18 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.06207669953149,"startL
                         .attr('fill','#E7F1CA')
                         .attr('stroke','#fff')
                         .attr('stroke-width','0px');
+                    window.d3.selectAll('#wetland path')
+                        .attr('fill','#e1e9db')
+                        .attr('stroke','#fff')
+                        .attr('stroke-width','0px');                        
                     window.d3.selectAll('#military path')
                         .attr('fill','#eff0ef')
                         .attr('stroke','#fff')
                         .attr('stroke-width','0px');
+                    window.d3.selectAll('#prison path')
+                        .attr('fill','#eff0ef')
+                        .attr('stroke','#fff')
+                        .attr('stroke-width','0px');                        
                     window.d3.selectAll('#hospital path')
                         .attr('fill','#E2EDEF')
                         .attr('stroke','#fff')
