@@ -9,7 +9,7 @@ var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
 
 // zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":33.96038644388752,"startLon":-118.36835308372055,"endLat":33.920187684826274,"endLon":-118.45464179676532,"zoomLevel":14,"layers_visible":["roads_visible","roads_visible_major","roads_visible_taxi_and_runways","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
+var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.06207669953149,"startLon":-118.23907636396899,"endLat":34.049756542537104,"endLon":-118.26555823751733,"zoomLevel":16,"layers_visible":["roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_service","roads_visible_ferry_route","roads_visible_taxi_and_runways","roads_visible_paths","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
 
 
 // exports.handler = function(event, context, callback) {
@@ -437,11 +437,13 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":33.96038644388752,"startL
 
         // console.log(formattedJson);
 
-        dKinds.push('ocean');
+        // push parent layers into array
+        if (mapOptions.layers_visible.indexOf('water_visible_ocean') != -1) dKinds.push('ocean');
         dKinds.push('earth');
-        dKinds.push('landuse');
-        dKinds.push('water');
-        dKinds.push('roads');
+        if (mapOptions.layers_visible.indexOf('landuse_visible') != -1) dKinds.push('landuse');
+        if (mapOptions.layers_visible.indexOf('water_visible') != -1) dKinds.push('water');
+        if (mapOptions.layers_visible.indexOf('roads_visible') != -1) dKinds.push('roads');
+
 
         var tilesToFetch = getTilesToFetch(startLat, endLat, startLon, endLon);
 
