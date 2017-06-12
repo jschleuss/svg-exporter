@@ -11,7 +11,7 @@ var XMLHttpRequest = require('xhr2')
 
 
 // zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"startLat":34.10358171718193,"startLon":-117.85247005502258,"endLat":33.64712395818743,"endLon":-118.83153898373561,"zoomLevel":11,"layers_visible":["sources","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
+var mapOptions = {"startLat":34.016541742675635,"startLon":-118.1361891923132,"endLat":34.00838654800723,"endLon":-118.14799525556779,"zoomLevel":16,"layers_visible":["sources","buildings_visible","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_service","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
 
 // get mapzen api key from console
 process.argv.forEach(function(val, index, array){
@@ -142,6 +142,15 @@ process.argv.forEach(function(val, index, array){
 
             // need etc to grab other water
             formattedJson['water']['etc'] = { features: [] }
+        }
+
+        // buildings
+        if (mapOptions.layers_visible.indexOf('buildings_visible') != -1) {
+            formattedJson['buildings'] = {
+                building: {
+                    features: []
+                }
+            }
         }
 
         // roads
@@ -454,6 +463,7 @@ process.argv.forEach(function(val, index, array){
         if (mapOptions.layers_visible.indexOf('landuse_visible') != -1) dKinds.push('landuse');
         if (mapOptions.layers_visible.indexOf('water_visible') != -1) dKinds.push('water');
         if (mapOptions.layers_visible.indexOf('roads_visible') != -1) dKinds.push('roads');
+        if (mapOptions.layers_visible.indexOf('buildings_visible') != -1) dKinds.push('buildings');
 
 
         var tilesToFetch = getTilesToFetch(startLat, endLat, startLon, endLon);
@@ -740,7 +750,9 @@ process.argv.forEach(function(val, index, array){
                     // window.d3.selectAll("#riverbank").append("path").attr("d",riverbankPaths);
 
 
-                    // restyle anything in groups
+                    /* restyle anything in groups */
+
+                    // roads
                     window.d3.selectAll('#highway path')
                         .attr('stroke','#A6A6A6')
                         .attr('stroke-width','2px');
@@ -877,11 +889,18 @@ process.argv.forEach(function(val, index, array){
                         .attr('stroke-width','0px');
 
 
-                    // mask landuse with another earth
-                    svg.append('defs').append('clipPath').attr('id','earth-clip');
-                    window.d3.select('#earth-clip').append('path').attr('d',earthTiles);
+                    // buildings
+                    window.d3.selectAll('#buildings #building path')
+                        .attr('fill','#f7f9fc')
+                        .attr('stroke','none');
 
-                    window.d3.select('#landuse').attr('clip-path','url(#earth-clip)');
+                    // mask landuse with another earth
+                    // svg.append('defs').append('clipPath').attr('id','earth-clip');
+                    // window.d3.select('#earth-clip').append('path').attr('d',earthTiles);
+
+                    // window.d3.select('#landuse').attr('clip-path','url(#earth-clip)');
+
+
 
                     // /tmp
                     fs.writeFile(outputLocation, window.d3.select('.container').html(),(err)=> {
