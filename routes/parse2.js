@@ -8,9 +8,17 @@ var jsdom = require('jsdom');
 var d3 = require('d3');
 var XMLHttpRequest = require('xhr2')
 
-// zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.10358171718193,"startLon":-117.85247005502258,"endLat":33.64712395818743,"endLon":-118.83153898373561,"zoomLevel":11,"layers_visible":["sources","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
 
+
+// zoom level needs to be one higher than map.getZoom()
+var mapOptions = {"startLat":34.10358171718193,"startLon":-117.85247005502258,"endLat":33.64712395818743,"endLon":-118.83153898373561,"zoomLevel":11,"layers_visible":["sources","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
+
+// get mapzen api key from console
+process.argv.forEach(function(val, index, array){
+    if (val.indexOf('mapzen-') != -1) {
+        mapOptions['apikey'] = val;
+    }
+});
 
 // exports.handler = function(event, context, callback) {
     console.log(mapOptions);
@@ -872,7 +880,7 @@ var mapOptions = {"apikey":"mapzen-uxhmqQc","startLat":34.10358171718193,"startL
                     // mask landuse with another earth
                     svg.append('defs').append('clipPath').attr('id','earth-clip');
                     window.d3.select('#earth-clip').append('path').attr('d',earthTiles);
-                    
+
                     window.d3.select('#landuse').attr('clip-path','url(#earth-clip)');
 
                     // /tmp
