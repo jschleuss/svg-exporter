@@ -11,7 +11,7 @@ var XMLHttpRequest = require('xhr2')
 
 
 // zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"startLat":34.016541742675635,"startLon":-118.1361891923132,"endLat":34.00838654800723,"endLon":-118.14799525556779,"zoomLevel":16,"layers_visible":["sources","buildings_visible","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_service","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
+var mapOptions = {"startLat":34.101404838404946,"startLon":-118.28232763868841,"endLat":34.09503070943102,"endLon":-118.2960355160895,"zoomLevel":18,"layers_visible":["sources","terrain_visible","buildings_visible","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_service","roads_visible_ferry_route","roads_visible_taxi_and_runways","roads_visible_paths","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water","water_visible_swimming_pools"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
 
 // get mapzen api key from console
 process.argv.forEach(function(val, index, array){
@@ -400,62 +400,6 @@ process.argv.forEach(function(val, index, array){
 
         // set up list of layers
         var dKinds = [];
-
-        // // check for available layers
-        // Object.keys(options.layers).forEach(function(key) {
-        //     // if (key == 'roads_visible') dKinds.push({'roads':options.layers[key]});
-        //     // if (key == 'roads_visible') dKinds.push('roads');
-
-        // });
-
-// "layers_visible":[
-//     "roads_visible",
-//     "roads_visible_highways",
-//     "roads_visible_highway_ramps",
-//     "roads_visible_major",
-//     "roads_visible_ferry_route",
-//     "roads_visible_taxi_and_runways",
-//     "borders_visible",
-//     "borders_visible_countries",
-//     "borders_visible_disputed",
-//     "borders_visible_states",
-//     "borders_visible_counties",
-//     "landuse_visible",
-//     "landuse_visible_airports",
-//     "landuse_visible_beach",
-//     "landuse_visible_cemetery",
-//     "landuse_visible_college",
-//     "landuse_visible_forest",
-//     "landuse_visible_hospital",
-//     "landuse_visible_military",
-//     "landuse_visible_park",
-//     "landuse_visible_prison",
-//     "landuse_visible_resort",
-//     "landuse_visible_school",
-//     "landuse_visible_stadium",
-//     "landuse_visible_wetland",
-//     "water_visible_ocean",
-//     "water_visible_inland_water"],
-
-// formattedJson['ocean'] = {
-//     ocean: {
-//         features: []
-//     }
-// }
-        // var formattedJson = {};
-
-        // // loop through visible layers
-        // for (var i = 0; i < mapOptions.layers_visible.length; i++) {
-        //     if (mapOptions.layers_visible[i] === 'roads_visible') {
-        //         formattedJson['roads'] = {
-
-        //         }
-        //     } else {
-
-        //     }
-        // }
-
-        // console.log(formattedJson);
 
         // push parent layers into array
         if (mapOptions.layers_visible.indexOf('water_visible_ocean') != -1) dKinds.push('ocean');
