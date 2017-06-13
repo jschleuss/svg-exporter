@@ -11,7 +11,7 @@ var XMLHttpRequest = require('xhr2')
 
 
 // zoom level needs to be one higher than map.getZoom()
-var mapOptions = {"startLat":34.07327180552247,"startLon":-118.21583719496567,"endLat":34.05360322816624,"endLon":-118.2581180688083,"zoomLevel":16,"layers_visible":["sources","buildings_visible","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_minor","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"backgroundImg":"","coord-submit":"submit"};
+var mapOptions = {"startLat":34.108859554551266,"startLon":-118.10716241483492,"endLat":33.80361844536487,"endLon":-118.48524322955491,"zoomLevel":11,"layers_visible":["sources","roads_visible","roads_visible_highways","roads_visible_highway_ramps","roads_visible_major","roads_visible_ferry_route","roads_visible_taxi_and_runways","borders_visible","borders_visible_countries","borders_visible_disputed","borders_visible_states","borders_visible_counties","landuse_visible","landuse_visible_airports","landuse_visible_beach","landuse_visible_cemetery","landuse_visible_college","landuse_visible_forest","landuse_visible_hospital","landuse_visible_military","landuse_visible_park","landuse_visible_prison","landuse_visible_resort","landuse_visible_school","landuse_visible_stadium","landuse_visible_wetland","water_visible","water_visible_ocean","water_visible_inland_water"],"custom_labels":[],"lineFeatures":[{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[-118.18817138671875,33.963294809320224],[-118.31932067871094,33.887517493601685],[-118.27674865722655,33.81509581951251],[-118.23623657226562,33.86015274030232],[-118.26644897460938,33.87497640410958],[-118.21495056152342,33.89834695102012]]}}],"pointFeatures":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-118.27606201171874,34.04924594193161]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-118.26850891113281,33.97582290387967]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-118.21289062499999,33.94392957889264]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-118.32412719726561,33.892647407997345]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-118.377685546875,33.99859652858635]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-118.25614929199219,33.85159945579106]}}],"polygonFeatures":[{"type":"Feature","properties":{"kind":"L.A. County Neighborhood (Current)","external_id":"east-hollywood","name":"East Hollywood","slug":"east-hollywood-la-county-neighborhood-current","set":"/1.0/boundary-set/la-county-neighborhoods-current/","metadata":{"sqmi":2.3787363778,"type":"segment-of-a-city","name":"East Hollywood","slug":"east-hollywood"},"resource_uri":"/1.0/boundary/east-hollywood-la-county-neighborhood-current/"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-118.293009,34.10170899912326],[-118.289308,34.099508999123266],[-118.284208,34.09590899912338],[-118.284808,34.09590899912351],[-118.28450800000012,34.076809999123604],[-118.28570800000014,34.07680999912369],[-118.286908,34.07650999912369],[-118.289608,34.07640999912368],[-118.309309,34.07640999912364],[-118.309409,34.10160899912327],[-118.29460900000011,34.10180899912332],[-118.293009,34.10170899912326]]]]}}],"backgroundImg":"","coord-submit":"submit"};
 
 // get mapzen api key from console
 process.argv.forEach(function(val, index, array){
@@ -181,6 +181,29 @@ process.argv.forEach(function(val, index, array){
             }
 
         } // roads
+
+        // check for uploaded features
+        if (mapOptions['polygonFeatures'].length > 0) {
+            formattedJson['polygonFeatures'] = {
+                polygonFeatures: {
+                    features: mapOptions['polygonFeatures']
+                }
+            }
+        }
+        if (mapOptions['lineFeatures'].length > 0) {
+            formattedJson['lineFeatures'] = {
+                lineFeatures: {
+                    features: mapOptions['lineFeatures']
+                }
+            }
+        }
+        if (mapOptions['pointFeatures'].length > 0) {
+            formattedJson['pointFeatures'] = {
+                pointFeatures: {
+                    features: mapOptions['pointFeatures']
+                }
+            }
+        }
 
         return formattedJson;
     } // setupJson()
@@ -391,6 +414,7 @@ process.argv.forEach(function(val, index, array){
                     }
                 }
             }
+            console.log(geojsonToReform);
             writeSVGFile(geojsonToReform);
         }
 
@@ -671,6 +695,35 @@ process.argv.forEach(function(val, index, array){
                     window.d3.selectAll('#buildings #building path')
                         .attr('fill','#f7f9fc')
                         .attr('stroke','none');
+
+                    // uploaded geojson polygons
+                    window.d3.selectAll('#polygonFeatures path')
+                        .attr('fill','none')
+                        .attr('stroke','#cd7139')
+                        .attr('stroke-width','1px');
+
+                    // uploaded geojson polylines
+                    window.d3.selectAll('#lineFeatures path')
+                        .attr('fill','none')
+                        .attr('stroke','#cd7139')
+                        .attr('stroke-width','1px');
+
+
+                    // // loop through custom geojson uploads
+                    // for (var i = 0; i < mapOptions['polygonFeatures'].length; i++) {
+                    //     svg.append('path')
+                    //         .attr('id','hello')
+                    //         .attr('d',mapOptions['polygonFeatures'][i])
+                    //         .attr('fill','none')
+                    //         .attr('stroke','#cd7139')
+                    //         .attr('stroke-width','4px');
+                    // }
+                        // svg.append('path')
+                        //     .attr('id','hello')
+                        //     .attr('d','M613.5,359a10.5,10.5 0 1,0 21,0 a10.5,10.5 0 1,0 -21,0 ')
+                        //     .attr('fill','blue')
+                        //     .attr('stroke','#cd7139')
+                        //     .attr('stroke-width','4px');
 
                     // mask landuse with another earth
                     // svg.append('defs').append('clipPath').attr('id','earth-clip');
